@@ -1,7 +1,7 @@
 module address_decoder (
     input [31:0] ALUResultM,
     input        MemWriteM,
-    output       WE,        //write enable (write only)
+    output       WE,        //from MemWriteM, then to DMEM
     output       OE         //output enable (read and write)
 );
 

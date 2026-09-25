@@ -28,7 +28,7 @@ module Register_File # (
 
     /*Sequential Write Logic (-ev Edge Triggered)*/
     always @(negedge i_Clk or posedge i_Rst) begin
-        if(i_Rst)
+        if(i_Rst) begin
             //Initialize registers on reset
             for (i=0;i<32;i=i+1) begin
                 case (i)
