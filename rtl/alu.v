@@ -1,9 +1,9 @@
 module ALU (
-    input wire [31:0] SrcAE,
-    input wire [31:0] SrcBE,
-    input wire [3:0]  ALUControlE,
-    output reg [31:0] ALUResultE,
-    output o_Zero
+    input wire [31:0]   SrcAE,
+    input wire [31:0]   SrcBE,
+    input wire [3:0]    ALUControlE,
+    output reg [31:0]   ALUResultE,
+    output              o_Zero
 );
     localparam c_ALU_OP_PASS = 4'h0;
     localparam c_ALU_OP_ADD  = 4'h1;

@@ -4,15 +4,15 @@
 module Register_File # (
     parameter p_DATA_DMEM_SIZE = 2**12  //2**10 -- 1kb @ 2**12 -- 4kb
 )(
-    input wire [4:0]    A1,         //Rs1D, source register 1 address
-    input wire [4:0]    A2,         //Rs2D, source register 2 address
-    input wire [4:0]    A3,         //RdW, destination register address
-    input wire [31:0]   ResultW,    //data write back
+    input wire  [4:0]   A1,         //Rs1D, source register 1 address
+    input wire  [4:0]   A2,         //Rs2D, source register 2 address
+    input wire  [4:0]   A3,         //RdW, destination register address
+    input wire  [31:0]  ResultW,    //data write back
     input wire          RegWriteW,  //write enable signal
     input wire          i_Clk,
     input wire          i_Rst,
-    output [31:0]       RD1D,       //read data 1
-    output [31:0]       RD2D        //read data 2
+    output      [31:0]  RD1D,       //read data 1
+    output      [31:0]  RD2D        //read data 2
 );
 
     //Constants for Bare-Metal Initialization
@@ -26,7 +26,7 @@ module Register_File # (
 
     integer i;
 
-    //Sequential Write Logic (-ev Edge Triggered)
+    /*Sequential Write Logic (-ev Edge Triggered)*/
     always @(negedge i_Clk or posedge i_Rst) begin
         if(i_Rst)
             //Initialize registers on reset
@@ -45,7 +45,7 @@ module Register_File # (
         end
     end
 
-    //Combinational Read Logic (Asynchronous)
+    /*Combinational Read Logic (Asynchronous)*/
     //using ternary operator ensure x0 ALWAYS read as 0, even if a bug bypassed the write protection
     assign RD1D = (A1==5'h0) ? 32'h0 : r_Registers[A1];
     assign RD2D = (A2==5'h0) ? 32'h0 : r_Registers[A2];
