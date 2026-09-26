@@ -21,7 +21,7 @@ module tb_LSU_all();
     );
 
     initial begin
-        $dumpfile("lsu_all_waveform.vcd");
+        $dumpfile("build/lsu_all_waveform.vcd");
         $dumpvars(0, tb_LSU_all);
 
         $display("=== STARTING COMPREHENSIVE LSU TEST (ALL 8 INSTRUCTIONS) ===");

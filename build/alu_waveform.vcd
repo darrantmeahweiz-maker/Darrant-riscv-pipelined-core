@@ -1,0 +1,216 @@
+$date
+	Sat Sep 26 18:36:31 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_ALU $end
+$var wire 1 ! o_Zero $end
+$var wire 32 " ALUResultE [31:0] $end
+$var parameter 4 # c_ALU_OP_ADD $end
+$var parameter 4 $ c_ALU_OP_AND $end
+$var parameter 4 % c_ALU_OP_BGE $end
+$var parameter 4 & c_ALU_OP_BGEU $end
+$var parameter 4 ' c_ALU_OP_BLT $end
+$var parameter 4 ( c_ALU_OP_BLTU $end
+$var parameter 4 ) c_ALU_OP_BNE $end
+$var parameter 4 * c_ALU_OP_OR $end
+$var parameter 4 + c_ALU_OP_PASS $end
+$var parameter 4 , c_ALU_OP_SLL $end
+$var parameter 4 - c_ALU_OP_SLT $end
+$var parameter 4 . c_ALU_OP_SLTU $end
+$var parameter 4 / c_ALU_OP_SRA $end
+$var parameter 4 0 c_ALU_OP_SRL $end
+$var parameter 4 1 c_ALU_OP_SUB $end
+$var parameter 4 2 c_ALU_OP_XOR $end
+$var reg 4 3 ALUControlE [3:0] $end
+$var reg 32 4 SrcAE [31:0] $end
+$var reg 32 5 SrcBE [31:0] $end
+$scope module uut $end
+$var wire 4 6 ALUControlE [3:0] $end
+$var wire 32 7 SrcAE [31:0] $end
+$var wire 32 8 SrcBE [31:0] $end
+$var wire 1 ! o_Zero $end
+$var parameter 4 9 c_ALU_OP_ADD $end
+$var parameter 4 : c_ALU_OP_AND $end
+$var parameter 4 ; c_ALU_OP_BGE $end
+$var parameter 4 < c_ALU_OP_BGEU $end
+$var parameter 4 = c_ALU_OP_BLT $end
+$var parameter 4 > c_ALU_OP_BLTU $end
+$var parameter 4 ? c_ALU_OP_BNE $end
+$var parameter 4 @ c_ALU_OP_OR $end
+$var parameter 4 A c_ALU_OP_PASS $end
+$var parameter 4 B c_ALU_OP_SLL $end
+$var parameter 4 C c_ALU_OP_SLT $end
+$var parameter 4 D c_ALU_OP_SLTU $end
+$var parameter 4 E c_ALU_OP_SRA $end
+$var parameter 4 F c_ALU_OP_SRL $end
+$var parameter 4 G c_ALU_OP_SUB $end
+$var parameter 4 H c_ALU_OP_XOR $end
+$var reg 32 I ALUResultE [31:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b101 H
+b10 G
+b111 F
+b1000 E
+b1010 D
+b1001 C
+b110 B
+b0 A
+b100 @
+b1011 ?
+b1110 >
+b1100 =
+b1111 <
+b1101 ;
+b11 :
+b1 9
+b101 2
+b10 1
+b111 0
+b1000 /
+b1010 .
+b1001 -
+b110 ,
+b0 +
+b100 *
+b1011 )
+b1110 (
+b1100 '
+b1111 &
+b1101 %
+b11 $
+b1 #
+$end
+#0
+$dumpvars
+b10100101101001011010010110100101 I
+b10100101101001011010010110100101 8
+b11111111111111111111111111111111 7
+b0 6
+b10100101101001011010010110100101 5
+b11111111111111111111111111111111 4
+b0 3
+b10100101101001011010010110100101 "
+0!
+$end
+#10000
+b11110 "
+b11110 I
+b1010 5
+b1010 8
+b10100 4
+b10100 7
+b1 3
+b1 6
+#20000
+1!
+b0 "
+b0 I
+b10100 5
+b10100 8
+b10 3
+b10 6
+#30000
+b1111000011110000111100001111 5
+b1111000011110000111100001111 8
+b11110000111100001111000011110000 4
+b11110000111100001111000011110000 7
+b11 3
+b11 6
+#40000
+0!
+b11111111111111111111111111111111 "
+b11111111111111111111111111111111 I
+b100 3
+b100 6
+#50000
+b1011010010110100101101001011010 "
+b1011010010110100101101001011010 I
+b10100101101001011010010110100101 5
+b10100101101001011010010110100101 8
+b11111111111111111111111111111111 4
+b11111111111111111111111111111111 7
+b101 3
+b101 6
+#60000
+b10000 "
+b10000 I
+b100 5
+b100 8
+b1 4
+b1 7
+b110 3
+b110 6
+#70000
+b1000000000000000000000000000 "
+b1000000000000000000000000000 I
+b10000000000000000000000000000000 4
+b10000000000000000000000000000000 7
+b111 3
+b111 6
+#80000
+b11111000000000000000000000000000 "
+b11111000000000000000000000000000 I
+b1000 3
+b1000 6
+#90000
+b1 "
+b1 I
+b1 5
+b1 8
+b11111111111111111111111111111111 4
+b11111111111111111111111111111111 7
+b1001 3
+b1001 6
+#100000
+1!
+b0 "
+b0 I
+b1010 3
+b1010 6
+#110000
+b10100 5
+b10100 8
+b1010 4
+b1010 7
+b1011 3
+b1011 6
+#120000
+b1 5
+b1 8
+b11111111111111111111111111111111 4
+b11111111111111111111111111111111 7
+b1100 3
+b1100 6
+#130000
+b1010 5
+b1010 8
+b10100 4
+b10100 7
+b1101 3
+b1101 6
+#140000
+b101 4
+b101 7
+b1110 3
+b1110 6
+#150000
+b11111111111111111111111111111111 4
+b11111111111111111111111111111111 7
+b1111 3
+b1111 6
+#160000
+0!
+b1010 4
+b1010 7
+b1011 3
+b1011 6
+#170000

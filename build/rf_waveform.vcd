@@ -1,0 +1,136 @@
+$date
+	Sat Sep 26 16:46:19 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_Register_File $end
+$var wire 32 ! RD2D [31:0] $end
+$var wire 32 " RD1D [31:0] $end
+$var reg 5 # A1 [4:0] $end
+$var reg 5 $ A2 [4:0] $end
+$var reg 5 % A3 [4:0] $end
+$var reg 1 & RegWriteW $end
+$var reg 32 ' ResultW [31:0] $end
+$var reg 1 ( i_Clk $end
+$var reg 1 ) i_Rst $end
+$scope module uut $end
+$var wire 5 * A1 [4:0] $end
+$var wire 5 + A2 [4:0] $end
+$var wire 5 , A3 [4:0] $end
+$var wire 1 & RegWriteW $end
+$var wire 32 - ResultW [31:0] $end
+$var wire 1 ( i_Clk $end
+$var wire 1 ) i_Rst $end
+$var wire 32 . RD2D [31:0] $end
+$var wire 32 / RD1D [31:0] $end
+$var parameter 32 0 c_GP_Index $end
+$var parameter 32 1 c_GP_Initial_Value $end
+$var parameter 32 2 c_SP_Index $end
+$var parameter 34 3 c_SP_Initial_Value $end
+$var parameter 32 4 p_DATA_DMEM_SIZE $end
+$var integer 32 5 i [31:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b1000000000000 4
+b10000000000010000111111111100 3
+b10 2
+b10000000000010000000000000000 1
+b11 0
+$end
+#0
+$dumpvars
+b100000 5
+b0 /
+b0 .
+b0 -
+b0 ,
+b0 +
+b0 *
+1)
+0(
+b0 '
+0&
+b0 %
+b0 $
+b0 #
+b0 "
+b0 !
+$end
+#5000
+1(
+#10000
+b100000 5
+0(
+#15000
+1(
+0)
+#20000
+0(
+#25000
+b10000000000010000000000000000 !
+b10000000000010000000000000000 .
+b10000000000010000111111111100 "
+b10000000000010000111111111100 /
+1(
+b11 $
+b11 +
+b10 #
+b10 *
+#30000
+0(
+#35000
+1&
+b11011110101011011011111011101111 '
+b11011110101011011011111011101111 -
+b101 %
+b101 ,
+1(
+#40000
+0(
+#45000
+b11011110101011011011111011101111 "
+b11011110101011011011111011101111 /
+b101 #
+b101 *
+0&
+1(
+#50000
+0(
+#55000
+1&
+b11111111111111111111111111111111 '
+b11111111111111111111111111111111 -
+b0 %
+b0 ,
+1(
+#60000
+0(
+#65000
+b0 "
+b0 /
+b0 #
+b0 *
+0&
+1(
+#70000
+0(
+#75000
+b10010001101000101011001111000 '
+b10010001101000101011001111000 -
+b1010 %
+b1010 ,
+1(
+#80000
+0(
+#85000
+b1010 #
+b1010 *
+1(
+#86000
