@@ -11,4 +11,3 @@ module address_decoder (
     assign OE = DMEM_Select & ~MemWriteM;
     assign WE = DMEM_Select & MemWriteM;
 endmodule
-
