@@ -11,6 +11,9 @@ module tb_LSU_all();
     wire [3:0]  BW;
     wire [31:0] Formatted_ReadDataM;
 
+    // Error tracking counter
+    integer error_count = 0;
+
     // Instantiate the Unit Under Test (UUT)
     LSU uut (
         .funct3M(funct3M),
@@ -20,80 +23,67 @@ module tb_LSU_all();
         .Formatted_ReadDataM(Formatted_ReadDataM)
     );
 
+    // Automated Testing Task with Side-by-Side Expected vs Actual Display
+    task test_lsu;
+        input [79:0] inst_name;
+        input [2:0]  in_f3;
+        input [1:0]  in_alu;
+        input [31:0] in_rd;
+        input [3:0]  exp_bw;
+        input [31:0] exp_data;
+        begin
+            funct3M    = in_f3;
+            ALUResultM = in_alu;
+            RD         = in_rd;
+            #10; // Wait for combinational logic to settle
+
+            if (BW === exp_bw && Formatted_ReadDataM === exp_data) begin
+                $display("%-5s | [PASS] | BW [Exp:%b | Act:%b] | Data [Exp:%h | Act:%h]", 
+                         inst_name, exp_bw, BW, exp_data, Formatted_ReadDataM);
+            end else begin
+                $display("%-5s | [FAIL] | BW [Exp:%b | Act:%b] | Data [Exp:%h | Act:%h] ❌", 
+                         inst_name, exp_bw, BW, exp_data, Formatted_ReadDataM);
+                error_count = error_count + 1;
+            end
+        end
+    endtask
+
     initial begin
         $dumpfile("build/lsu_all_waveform.vcd");
         $dumpvars(0, tb_LSU_all);
 
-        $display("=== STARTING COMPREHENSIVE LSU TEST (ALL 8 INSTRUCTIONS) ===");
+        $display("========================================================================================================");
+        $display("                               AUTOMATED LSU VERIFICATION SUITE (WITH EXPECTED VALUES)                  ");
+        $display("========================================================================================================");
 
-        // ==========================================
-        // PART 1: STORE INSTRUCTIONS (3 Instructions)
-        // ==========================================
+        // ================================================================================================================
+        // format: test_lsu("NAME", funct3, ALUResult[1:0], RD_input, expected_BW, expected_Formatted_Data)
+        // ================================================================================================================
 
-        // 1. sb (Store Byte) - funct3: 3'b000
-        funct3M = 3'b000; 
-        ALUResultM = 2'b10; // Byte lane 2
-        RD = 32'h0;
-        #10;
-        $display("1. sb  -> Expected BW: 0100 | Actual BW: %b", BW);
+        // -----------------------------------------
+        // PART 1: STORE INSTRUCTIONS
+        // -----------------------------------------
+        test_lsu("SB",   3'b000, 2'b10, 32'h00000000, 4'b0100, 32'h00000000);
+        test_lsu("SH",   3'b001, 2'b10, 32'h00000000, 4'b1100, 32'h00000000);
+        test_lsu("SW",   3'b010, 2'b00, 32'h00000000, 4'b1111, 32'h00000000);
 
-        // 2. sh (Store Halfword) - funct3: 3'b001
-        funct3M = 3'b001; 
-        ALUResultM = 2'b10; // Upper halfword
-        #10;
-        $display("2. sh  -> Expected BW: 1100 | Actual BW: %b", BW);
+        // -----------------------------------------
+        // PART 2: LOAD INSTRUCTIONS
+        // -----------------------------------------
+        test_lsu("LB",   3'b000, 2'b00, 32'h0000008A, 4'b0001, 32'hFFFFFF8A);
+        test_lsu("LBU",  3'b100, 2'b00, 32'h0000008A, 4'b0001, 32'h0000008A);
+        test_lsu("LH",   3'b001, 2'b00, 32'h00008FFF, 4'b0011, 32'hFFFF8FFF);
+        test_lsu("LHU",  3'b101, 2'b00, 32'h00008FFF, 4'b0011, 32'h00008FFF);
+        test_lsu("LW",   3'b010, 2'b00, 32'hDEADBEEF, 4'b1111, 32'hDEADBEEF);
 
-        // 3. sw (Store Word) - funct3: 3'b010
-        funct3M = 3'b010; 
-        ALUResultM = 2'b00; 
-        #10;
-        $display("3. sw  -> Expected BW: 1111 | Actual BW: %b", BW);
-
-
-        // ==========================================
-        // PART 2: LOAD INSTRUCTIONS (5 Instructions)
-        // ==========================================
-
-        // 4. lb (Load Byte Signed) - funct3: 3'b000
-        // Testing with 0x8A (bit 7 is 1, so it should sign-extend with f's)
-        funct3M = 3'b000; 
-        ALUResultM = 2'b00; 
-        RD = 32'h0000008A; 
-        #10;
-        $display("4. lb  (signed)   -> Expected: ffffff8a | Actual: %h", Formatted_ReadDataM);
-
-        // 5. lbu (Load Byte Unsigned) - funct3: 3'b100
-        // Testing with the same 0x8A, but should zero-extend instead
-        funct3M = 3'b100; 
-        ALUResultM = 2'b00; 
-        RD = 32'h0000008A; 
-        #10;
-        $display("5. lbu (unsigned) -> Expected: 0000008a | Actual: %h", Formatted_ReadDataM);
-
-        // 6. lh (Load Halfword Signed) - funct3: 3'b001
-        // Testing with 0x8FFF (bit 15 is 1, sign-extending upper bits)
-        funct3M = 3'b001; 
-        ALUResultM = 2'b00; 
-        RD = 32'h00008FFF; 
-        #10;
-        $display("6. lh  (signed)   -> Expected: ffff8fff | Actual: %h", Formatted_ReadDataM);
-
-        // 7. lhu (Load Halfword Unsigned) - funct3: 3'b101
-        // Testing with 0x8FFF, zero-extending upper bits
-        funct3M = 3'b101; 
-        ALUResultM = 2'b00; 
-        RD = 32'h00008FFF; 
-        #10;
-        $display("7. lhu (unsigned) -> Expected: 00008fff | Actual: %h", Formatted_ReadDataM);
-
-        // 8. lw (Load Word) - funct3: 3'b010
-        funct3M = 3'b010; 
-        ALUResultM = 2'b00; 
-        RD = 32'hDEADBEEF; 
-        #10;
-        $display("8. lw  (word)     -> Expected: deadbeef | Actual: %h", Formatted_ReadDataM);
-
-        $display("=== ALL 8 INSTRUCTION TESTS COMPLETED SUCCESSFULLY ===");
+        // Final Summary Report
+        $display("========================================================================================================");
+        if (error_count == 0) begin
+            $display(" 🎉 ALL LSU TESTS PASSED! Load-Store Unit logic is fully verified.");
+        end else begin
+            $display(" ❌ SIMULATION FAILED: Total Mismatches Found = %0d", error_count);
+        end
+        $display("========================================================================================================");
         $finish;
     end
 

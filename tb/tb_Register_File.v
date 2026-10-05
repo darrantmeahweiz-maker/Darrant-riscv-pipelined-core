@@ -14,6 +14,9 @@ module tb_Register_File();
     wire [31:0] RD1D;
     wire [31:0] RD2D;
 
+    // Error tracking counter
+    integer error_count = 0;
+
     // 2. Instantiate the Register File
     Register_File #(
         .p_DATA_DMEM_SIZE(4096)
@@ -34,11 +37,13 @@ module tb_Register_File();
 
     // 4. Test Sequence
     initial begin
-        // Output waveform to the build folder we just discussed!
+        // Output waveform to the build folder
         $dumpfile("build/rf_waveform.vcd");
         $dumpvars(0, tb_Register_File);
 
-        $display("=== STARTING REGISTER FILE TEST ===");
+        $display("========================================================================================================");
+        $display("                              AUTOMATED REGISTER FILE VERIFICATION SUITE                                ");
+        $display("========================================================================================================");
 
         // Initialize all inputs
         i_Clk = 0;
@@ -55,23 +60,40 @@ module tb_Register_File();
         A1 = 5'd2;  // Read sp (x2)
         A2 = 5'd3;  // Read gp (x3)
         #1;         // Wait 1ns for combinational read
+
         // Expected SP: 0x10010000 + 4096 - 4 = 0x10010FFC
-        $display("1. Reset Check -> Expected SP: 10010ffc, GP: 10010000 | Actual SP: %h, GP: %h", RD1D, RD2D);
+        if (RD1D === 32'h10010FFC && RD2D === 32'h10010000) begin
+            $display("RESET_CHECK | [PASS]");
+        end else begin
+            $display("RESET_CHECK | [FAIL] ❌ MISMATCH DETECTED!");
+            error_count = error_count + 1;
+        end
+        $display("    Actual   : SP (x2)=%h, GP (x3)=%h", RD1D, RD2D);
+        $display("    Expected : SP (x2)=10010ffc, GP (x3)=10010000");
+        $display("--------------------------------------------------------------------------------------------------------");
 
         // ---------------------------------------------------------
         // TEST 2: Normal Write & Read
         // ---------------------------------------------------------
-        // We set up the data on the posedge, so it is cleanly captured on the negedge
         @(posedge i_Clk); 
         A3 = 5'd5;              // Target register x5
         ResultW = 32'hDEADBEEF; // Data to write
         RegWriteW = 1;          // Enable write
         
-        @(posedge i_Clk);       // Wait for the next clock cycle (write happened on the negedge between these)
+        @(posedge i_Clk);       // Wait for the next clock cycle
         RegWriteW = 0;          // Turn off write
         A1 = 5'd5;              // Read x5
         #1;
-        $display("2. Normal Write (x5) -> Expected: deadbeef | Actual: %h", RD1D);
+
+        if (RD1D === 32'hDEADBEEF) begin
+            $display("NORMAL_WRITE| [PASS]");
+        end else begin
+            $display("NORMAL_WRITE| [FAIL] ❌ MISMATCH DETECTED!");
+            error_count = error_count + 1;
+        end
+        $display("    Actual   : Read x5=%h", RD1D);
+        $display("    Expected : Read x5=deadbeef");
+        $display("--------------------------------------------------------------------------------------------------------");
 
         // ---------------------------------------------------------
         // TEST 3: x0 Hardwired Protection
@@ -85,7 +107,16 @@ module tb_Register_File();
         RegWriteW = 0;
         A1 = 5'd0;              // Read x0
         #1;
-        $display("3. x0 Protection -> Expected: 00000000 | Actual: %h", RD1D);
+
+        if (RD1D === 32'h00000000) begin
+            $display("X0_PROTECT  | [PASS]");
+        end else begin
+            $display("X0_PROTECT  | [FAIL] ❌ MISMATCH DETECTED!");
+            error_count = error_count + 1;
+        end
+        $display("    Actual   : Read x0=%h", RD1D);
+        $display("    Expected : Read x0=00000000");
+        $display("--------------------------------------------------------------------------------------------------------");
 
         // ---------------------------------------------------------
         // TEST 4: RegWrite Enable Signal Check
@@ -98,9 +129,25 @@ module tb_Register_File();
         @(posedge i_Clk);
         A1 = 5'd10;             // Read x10
         #1;
-        $display("4. RegWrite Disabled -> Expected: 00000000 | Actual: %h", RD1D);
 
-        $display("=== TESTS COMPLETED ===");
+        if (RD1D === 32'h00000000) begin
+            $display("WRITE_DISABLE|[PASS]");
+        end else begin
+            $display("WRITE_DISABLE|[FAIL] ❌ MISMATCH DETECTED!");
+            error_count = error_count + 1;
+        end
+        $display("    Actual   : Read x10=%h", RD1D);
+        $display("    Expected : Read x10=00000000");
+        $display("--------------------------------------------------------------------------------------------------------");
+
+        // Final Summary Report
+        $display("========================================================================================================");
+        if (error_count == 0) begin
+            $display(" 🎉 ALL REGISTER FILE TESTS PASSED! Register File logic is fully verified.");
+        end else begin
+            $display(" ❌ SIMULATION FAILED: Total Mismatches Found = %0d", error_count);
+        end
+        $display("========================================================================================================");
         $finish;
     end
 

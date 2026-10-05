@@ -1,0 +1,138 @@
+$date
+	Mon Oct  5 09:28:06 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_LSU_all $end
+$var wire 32 ! Formatted_ReadDataM [31:0] $end
+$var wire 4 " BW [3:0] $end
+$var reg 2 # ALUResultM [1:0] $end
+$var reg 32 $ RD [31:0] $end
+$var reg 3 % funct3M [2:0] $end
+$var integer 32 & error_count [31:0] $end
+$scope module uut $end
+$var wire 2 ' ALUResultM [1:0] $end
+$var wire 32 ( RD [31:0] $end
+$var wire 3 ) funct3M [2:0] $end
+$var reg 4 * BW [3:0] $end
+$var reg 32 + Formatted_ReadDataM [31:0] $end
+$upscope $end
+$scope task test_lsu $end
+$var reg 4 , exp_bw [3:0] $end
+$var reg 32 - exp_data [31:0] $end
+$var reg 2 . in_alu [1:0] $end
+$var reg 3 / in_f3 [2:0] $end
+$var reg 32 0 in_rd [31:0] $end
+$var reg 80 1 inst_name [79:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b101001101000010 1
+b0 0
+b0 /
+b10 .
+b0 -
+b100 ,
+b0 +
+b100 *
+b0 )
+b0 (
+b10 '
+b0 &
+b0 %
+b0 $
+b10 #
+b100 "
+b0 !
+$end
+#10000
+b1100 "
+b1100 *
+b1 %
+b1 )
+b1100 ,
+b1 /
+b101001101001000 1
+#20000
+b1111 "
+b1111 *
+b0 #
+b0 '
+b10 %
+b10 )
+b1111 ,
+b0 .
+b10 /
+b101001101010111 1
+#30000
+b11111111111111111111111110001010 !
+b11111111111111111111111110001010 +
+b1 "
+b1 *
+b10001010 $
+b10001010 (
+b0 %
+b0 )
+b11111111111111111111111110001010 -
+b1 ,
+b10001010 0
+b0 /
+b100110001000010 1
+#40000
+b10001010 !
+b10001010 +
+b1 "
+b1 *
+b100 %
+b100 )
+b10001010 -
+b100 /
+b10011000100001001010101 1
+#50000
+b11111111111111111000111111111111 !
+b11111111111111111000111111111111 +
+b11 "
+b11 *
+b1000111111111111 $
+b1000111111111111 (
+b1 %
+b1 )
+b11111111111111111000111111111111 -
+b11 ,
+b1000111111111111 0
+b1 /
+b100110001001000 1
+#60000
+b1000111111111111 !
+b1000111111111111 +
+b11 "
+b11 *
+b101 %
+b101 )
+b1000111111111111 -
+b101 /
+b10011000100100001010101 1
+#70000
+b11011110101011011011111011101111 !
+b11011110101011011011111011101111 +
+b1111 "
+b1111 *
+b11011110101011011011111011101111 $
+b11011110101011011011111011101111 (
+b10 %
+b10 )
+b11011110101011011011111011101111 -
+b1111 ,
+b11011110101011011011111011101111 0
+b10 /
+b100110001010111 1
+#80000
