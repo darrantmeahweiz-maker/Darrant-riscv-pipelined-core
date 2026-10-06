@@ -1,0 +1,121 @@
+$date
+	Tue Oct  6 12:25:54 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_CRC $end
+$var wire 32 ! CRC_Result [31:0] $end
+$var reg 2 " CRC_Control [1:0] $end
+$var reg 32 # SrcA [31:0] $end
+$var reg 32 $ SrcB [31:0] $end
+$var integer 32 % error_count [31:0] $end
+$scope module uut $end
+$var wire 2 & CRC_Control [1:0] $end
+$var wire 32 ' SrcA [31:0] $end
+$var wire 32 ( SrcB [31:0] $end
+$var reg 32 ) CRC_Result [31:0] $end
+$scope function CRC16 $end
+$var reg 16 * crc [15:0] $end
+$var reg 32 + data [31:0] $end
+$var reg 1 , inv $end
+$var reg 32 - seed [31:0] $end
+$var integer 32 . i [31:0] $end
+$upscope $end
+$scope function CRC32 $end
+$var reg 32 / crc [31:0] $end
+$var reg 32 0 data [31:0] $end
+$var reg 1 1 inv $end
+$var reg 32 2 seed [31:0] $end
+$var integer 32 3 i [31:0] $end
+$upscope $end
+$scope function CRC8 $end
+$var reg 8 4 crc [7:0] $end
+$var reg 32 5 data [31:0] $end
+$var reg 1 6 inv $end
+$var reg 32 7 seed [31:0] $end
+$var integer 32 8 i [31:0] $end
+$upscope $end
+$upscope $end
+$scope task CRCtest $end
+$var reg 32 9 exp_result [31:0] $end
+$var reg 32 : in_A [31:0] $end
+$var reg 32 ; in_B [31:0] $end
+$var reg 2 < in_ctrl [1:0] $end
+$var reg 240 = test_CRC [239:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b1000011010100100100001100111000 =
+b0 <
+b0 ;
+b1 :
+b111 9
+b11111111111111111111111111111111 8
+b0 7
+16
+b1 5
+b111 4
+bx 3
+bx 2
+x1
+bx 0
+bx /
+bx .
+bx -
+x,
+bx +
+bx *
+b111 )
+b0 (
+b1 '
+b0 &
+b0 %
+b0 $
+b1 #
+b0 "
+b111 !
+$end
+#10000
+b1000000000000101 !
+b1000000000000101 )
+1,
+b11111111111111111111111111111111 .
+b1000000000000101 *
+b1 +
+b0 -
+b1 "
+b1 &
+b1000000000000101 9
+b1 <
+b100001101010010010000110011000100110110 =
+#20000
+b100110000010001110110110111 !
+b100110000010001110110110111 )
+11
+b11111111111111111111111111111111 3
+b100110000010001110110110111 /
+b1 0
+b0 2
+b10 "
+b10 &
+b100110000010001110110110111 9
+b10 <
+b100001101010010010000110011001100110010 =
+#30000
+b0 !
+b0 )
+b11 "
+b11 &
+b0 9
+b11 <
+b10001000110010101100110011000010111010101101100011101000010000000101000001100100010011101100010001100010011000100101001 =
+#40000
