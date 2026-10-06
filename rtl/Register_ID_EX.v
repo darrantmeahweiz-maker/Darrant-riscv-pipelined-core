@@ -12,6 +12,7 @@ module Register_ID_EX (
     input       [3:0]   ALUControlD,
     input       [1:0]   MultControlD,
     input       [1:0]   CRCControlD,
+    input       [2:0]   BITControlD,
     input               ALUSrcBD,
     input       [1:0]   ALUSrcAD,
 
@@ -36,6 +37,7 @@ module Register_ID_EX (
     output reg  [3:0]   ALUControlE,
     output reg  [1:0]   MultControlE,
     output reg  [1:0]   CRCControlE,
+    output reg  [2:0]   BITControlE,
     output reg          ALUSrcBE,
     output reg  [1:0]   ALUSrcAE,
 
@@ -63,6 +65,7 @@ module Register_ID_EX (
             ALUControlE  <= 4'b0000;
             MultControlE <= 2'b00;
             CRCControlE  <= 2'b00;
+            BITControlE  <= 3'b000;
             ALUSrcBE     <= 1'b0;
             ALUSrcAE     <= 2'b00;
             RD1E         <= 32'h0;
@@ -85,6 +88,7 @@ module Register_ID_EX (
             ALUControlE  <= ALUControlD;
             MultControlE <= MultControlD;
             CRCControlE  <= CRCControlD;
+            BITControlE  <= BITControlD;
             ALUSrcBE     <= ALUSrcBD;
             ALUSrcAE     <= ALUSrcAD;
             RD1E         <= RD1;
