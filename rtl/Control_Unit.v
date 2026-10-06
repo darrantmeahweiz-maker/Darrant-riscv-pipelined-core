@@ -2,7 +2,8 @@ module Control_Unit (
     // Inputs from instruction (Decode stage)
     input       [6:0]   op,
     input       [2:0]   funct3,
-    input       [6:0]   funct7,   
+    input       [6:0]   funct7,  
+    input       [4:0]   rs2D, 
 
     // Output to pipelined register
     output reg          RegWriteD,
@@ -12,6 +13,7 @@ module Control_Unit (
     output reg          BranchD,
 
     output reg  [1:0]   ExecSelD,
+    output reg  [2:0]   BITControlD,
     output reg  [1:0]   MultControlD,
     output reg  [1:0]   CRCControlD,
     output reg  [3:0]   ALUControlD,
@@ -41,50 +43,68 @@ module Control_Unit (
         // Decode the Opcode
         case (op)
             // ----------------------------------------------------
-            // R-type & I-type (ALU, MULT, CRC operations)
+            // R-type & I-type (ALU, MULT, CRC, BITMANIP operations)
             // ----------------------------------------------------
             7'b0110011, 7'b0010011: begin   
                 RegWriteD   = 1'b1;
                 ResultSrcD  = 2'b00;                // ALUResult
-                ALUSrcBD    = (op==7'b0010011)? 1'b1: 1'b0; // I-type is one while R-type is zero
+                ALUSrcBD    = (op==7'b0010011); // I-type is one while R-type is zero
                 ImmSrcD     = 3'b000;
 
-                // Check for MULT Extension (Zmmul)
-                if (op == 7'b0110011 && funct7 == 7'b0000001) begin
-                    ExecSelD     = 2'b01;
-                    MultControlD = funct3[1:0];   // 00=mul, 01=mulh, 10=mulhsu, 11=mulhu
-                
-                // Check for CRC Extension (Xicrc)
-                end else if (op == 7'b0110011 && funct7 == 7'b1000000) begin
-                    ExecSelD     = 2'b10;
-                    CRCControlD  = funct3[1:0];    // 00=crcb, 01=crch, 10=crcw
 
+                //Check for execution unit (ExecSelD & custom Control)
+                if (op == 7'b0010011) begin
+                    //I-type custom extensions
+                    case ({funct3,rs2D})
+                        8'b001_00000: begin     //clz
+                            ExecSelD   = 2'b11;
+                            BITControlD = 3'b000;
+                        end
+                        8'b001_00010: begin     //cpop
+                            ExecSelD   = 2'b11;
+                            BITControlD = 3'b001;
+                        end
+                        8'b101_11000: begin     //rev8
+                            ExecSelD   = 2'b11;
+                            BITControlD = 3'b010;
+                        end
+                        default: ;
+                    endcase
                 end else begin
-                    // Standard ALU Operations via funct3
-                    case (funct3)
-                        3'b000: begin
-                            if (funct7[5] == 1'b1 && op == 7'b0110011) begin
-                                ALUControlD = 4'h2; // sub (note: i-type doesn't have sub)
-                            end else begin
-                                ALUControlD = 4'h1; // add & addi
-                            end
+                    //R-type custom extensions
+                    case (funct7)
+                        7'b0110000: begin
+                            ExecSelD     = 2'b11;
+                            BITControlD  = (funct3 = 3'b001)? 3'b011: 3'b100;   // 011=rol 100=ror
                         end
-                        3'b001: ALUControlD = 4'h6; // sll & slli
-                        3'b010: ALUControlD = 4'h9; // slt & slti
-                        3'b011: ALUControlD = 4'hA; // sltu & sltiu
-                        3'b100: ALUControlD = 4'h5; // xor & xori
-                        3'b101: begin
-                            if (funct7[5] == 1'b1) begin
-                                ALUControlD = 4'h8; // sra & srai
-                            end else begin
-                                ALUControlD = 4'h7; // srl & srli
-                            end
+                        7'b0000001: begin
+                            ExecSelD     = 2'b01;
+                            MultControlD = funct3[1:0];     // 00=mul, 01=mulh, 10=mulhsu, 11=mulhu
                         end
-                        3'b110: ALUControlD = 4'h4; // or & ori
-                        3'b111: ALUControlD = 4'h3; // and & andi
-                        default: ALUControlD = 4'h0;
+                        7'b1000000: begin
+                            ExecSelD     = 2'b10;
+                            CRCControlD = funct3[1:0];     // 00=crcb, 01=crch, 10=crcw
+                        end
+                        default: ;
                     endcase
                 end
+
+                //Standard ALU Control
+                case (funct3)
+                    3'b000: begin                                                           // 4'h1 = add & addi
+                        ALUControlD = (funct7[5] == 1'b1 && op == 7'b0110011)? 4'h2: 4'h1;  // 4'h2 = sub (note: i-type doesn't have sub)                        
+                    end
+                    3'b001: ALUControlD = 4'h6; // sll & slli
+                    3'b010: ALUControlD = 4'h9; // slt & slti
+                    3'b011: ALUControlD = 4'hA; // sltu & sltiu
+                    3'b100: ALUControlD = 4'h5; // xor & xori
+                    3'b101: begin                                                   // srl & srli
+                        ALUControlD = (funct7[5] == 1'b1) ? 4'h8 : 4'h7;    // sra & srai  
+                    end
+                    3'b110: ALUControlD = 4'h4; // or & ori
+                    3'b111: ALUControlD = 4'h3; // and & andi
+                    default: ALUControlD = 4'h0;
+                endcase
             end
 
             // ----------------------------------------------------
@@ -183,3 +203,71 @@ module Control_Unit (
         endcase
     end
 endmodule
+
+
+/* Previous version for R-type & I-type (ALU, MULT, CRC, BITMANIP operations)
+                //Check for BITMANIP Extension (Zbb)
+                if(op == 7'b0010011) begin
+                    if  (funct3 == 3'b001 && rs2D == 5'b00000) begin //clz
+                        ExecSelD   = 2'b11;
+                        BITControlD = 3'b000;
+                    end
+                    if  (funct3 == 3'b001 && rs2D == 5'b00010) begin //cpop
+                        ExecSelD   = 2'b11;
+                        BITControlD = 3'b001;
+                    end
+                    if  (funct3 == 3'b101 && rs2D == 5'b11000) begin //rev8
+                        ExecSelD   = 2'b11;
+                        BITControlD = 3'b010;
+                    end
+                end
+                if(op == 7'b0110011 && funct7 == 7'b0110000) begin
+                    if(funct3 == 3'b001) begin                       //rol
+                        ExecSelD   = 2'b11;
+                        BITControlD = 3'b011;
+                    end
+                    if(funct3 == 3'b101) begin                       //ror
+                        ExecSelD   = 2'b11;
+                        BITControlD = 3'b100;
+                    end
+                end
+
+
+                // Check for MULT Extension (Zmmul)
+                if (op == 7'b0110011 && funct7 == 7'b0000001) begin
+                    ExecSelD     = 2'b01;
+                    MultControlD = funct3[1:0];   // 00=mul, 01=mulh, 10=mulhsu, 11=mulhu
+                
+                // Check for CRC Extension (Xicrc)
+                end else if (op == 7'b0110011 && funct7 == 7'b1000000) begin
+                    ExecSelD     = 2'b10;
+                    CRCControlD  = funct3[1:0];    // 00=crcb, 01=crch, 10=crcw
+
+                end else begin
+                    // Standard ALU Operations via funct3
+                    case (funct3)
+                        3'b000: begin
+                            if (funct7[5] == 1'b1 && op == 7'b0110011) begin
+                                ALUControlD = 4'h2; // sub (note: i-type doesn't have sub)
+                            end else begin
+                                ALUControlD = 4'h1; // add & addi
+                            end
+                        end
+                        3'b001: ALUControlD = 4'h6; // sll & slli
+                        3'b010: ALUControlD = 4'h9; // slt & slti
+                        3'b011: ALUControlD = 4'hA; // sltu & sltiu
+                        3'b100: ALUControlD = 4'h5; // xor & xori
+                        3'b101: begin
+                            if (funct7[5] == 1'b1) begin
+                                ALUControlD = 4'h8; // sra & srai
+                            end else begin
+                                ALUControlD = 4'h7; // srl & srli
+                            end
+                        end
+                        3'b110: ALUControlD = 4'h4; // or & ori
+                        3'b111: ALUControlD = 4'h3; // and & andi
+                        default: ALUControlD = 4'h0;
+                    endcase
+                end
+            end
+*/
