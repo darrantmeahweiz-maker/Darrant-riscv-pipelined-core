@@ -120,6 +120,7 @@ always @(posedge clk) begin
     end
 end
 
+//program.hex
 start
 00001137
 00001197
