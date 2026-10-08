@@ -21,7 +21,7 @@ module IMEM (
         if (OE) begin
             RD = ROM[word_index];
         end else begin
-            RD = 32'h000000013; //NOP instruction (addi x0,x0,0)
+            RD = 32'h00000013; //NOP instruction (addi x0,x0,0)
         end
     end
 endmodule

@@ -75,7 +75,7 @@ module Control_Unit (
                     case (funct7)
                         7'b0110000: begin
                             ExecSelD     = 2'b11;
-                            BITControlD  = (funct3 = 3'b001)? 3'b011: 3'b100;   // 011=rol 100=ror
+                            BITControlD  = (funct3 == 3'b001)? 3'b011: 3'b100;   // 011=rol 100=ror
                         end
                         7'b0000001: begin
                             ExecSelD     = 2'b01;

@@ -77,6 +77,3 @@ module Hazard_Unit (
             end
     end
 endmodule
-
-
-
