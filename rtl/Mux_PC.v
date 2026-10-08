@@ -1,16 +1,18 @@
 module Mux_PC (
-    input   [1:0]   PCSrcE,
+    input   [1:0]   MUX_PCSel,
     input   [31:0]  PCPlus4F,
     input   [31:0]  PCTargetE,
     input   [31:0]  ALUResultE,
+    input   [31:0]  Predicted_PC,
     output reg [31:0]  PC_next
-)
+);
 
 always @(*) begin
-    case (PCSrcE) 
+    case (MUX_PCSel) 
         2'b00: PC_next = PCPlus4F;
         2'b01: PC_next = PCTargetE;
         2'b10: PC_next = ALUResultE;
+        2'b11: PC_next = Predicted_PC;
         default: PC_next = PCPlus4F;
     endcase
 end

@@ -1,0 +1,331 @@
+$date
+	Thu Oct  8 10:38:24 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_Hazard_Unit $end
+$var wire 1 ! stallf $end
+$var wire 1 " stalld $end
+$var wire 2 # forwardbe [1:0] $end
+$var wire 2 $ forwardae [1:0] $end
+$var wire 1 % flushe $end
+$var wire 1 & flushd $end
+$var reg 1 ' mispredict_flag $end
+$var reg 2 ( pcscrce [1:0] $end
+$var reg 5 ) rde [4:0] $end
+$var reg 5 * rdm [4:0] $end
+$var reg 5 + rdw [4:0] $end
+$var reg 1 , regwritem $end
+$var reg 1 - regwritew $end
+$var reg 2 . resultsrce [1:0] $end
+$var reg 5 / rs1d [4:0] $end
+$var reg 5 0 rs1e [4:0] $end
+$var reg 5 1 rs2d [4:0] $end
+$var reg 5 2 rs2e [4:0] $end
+$var integer 32 3 error_count [31:0] $end
+$scope module dut $end
+$var wire 1 ' Mispredict_Flag $end
+$var wire 2 4 PCSrcE [1:0] $end
+$var wire 5 5 RdE [4:0] $end
+$var wire 5 6 RdM [4:0] $end
+$var wire 5 7 RdW [4:0] $end
+$var wire 1 , RegWriteM $end
+$var wire 1 - RegWriteW $end
+$var wire 2 8 ResultSrcE [1:0] $end
+$var wire 5 9 Rs1D [4:0] $end
+$var wire 5 : Rs1E [4:0] $end
+$var wire 5 ; Rs2D [4:0] $end
+$var wire 5 < Rs2E [4:0] $end
+$var reg 1 & FlushD $end
+$var reg 1 % FlushE $end
+$var reg 2 = ForwardAE [1:0] $end
+$var reg 2 > ForwardBE [1:0] $end
+$var reg 1 " StallD $end
+$var reg 1 ! StallF $end
+$var reg 1 ? lwStall $end
+$upscope $end
+$scope task test_hazard $end
+$var reg 1 @ exp_flushd $end
+$var reg 1 A exp_flushe $end
+$var reg 2 B exp_forwardae [1:0] $end
+$var reg 2 C exp_forwardbe [1:0] $end
+$var reg 1 D exp_stalld $end
+$var reg 1 E exp_stallf $end
+$var reg 1 F in_mispredict $end
+$var reg 2 G in_pcscrce [1:0] $end
+$var reg 5 H in_rde [4:0] $end
+$var reg 5 I in_rdm [4:0] $end
+$var reg 5 J in_rdw [4:0] $end
+$var reg 1 K in_regwritem $end
+$var reg 1 L in_regwritew $end
+$var reg 2 M in_resultsrce [1:0] $end
+$var reg 5 N in_rs1d [4:0] $end
+$var reg 5 O in_rs1e [4:0] $end
+$var reg 5 P in_rs2d [4:0] $end
+$var reg 5 Q in_rs2e [4:0] $end
+$var reg 128 R test_name [127:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+b10011100100111101011111010010000100000101011010010000010101001001000100 R
+b10 Q
+b100 P
+b1 O
+b11 N
+b0 M
+0L
+0K
+b0 J
+b0 I
+b0 H
+b0 G
+0F
+0E
+0D
+b0 C
+b0 B
+0A
+0@
+0?
+b0 >
+b0 =
+b10 <
+b100 ;
+b1 :
+b11 9
+b0 8
+b0 7
+b0 6
+b0 5
+b0 4
+b0 3
+b10 2
+b100 1
+b1 0
+b11 /
+b0 .
+0-
+0,
+b0 +
+b0 *
+b0 )
+b0 (
+0'
+0&
+0%
+b0 $
+b0 #
+0"
+0!
+$end
+#10000
+b10 $
+b10 =
+b0 1
+b0 ;
+b0 /
+b0 9
+1,
+b101 *
+b101 6
+b101 0
+b101 :
+b10 B
+b0 P
+b0 N
+1K
+b101 I
+b101 O
+b10001100101011101000100010111110100000101011111010011010100010101001101 R
+#20000
+b1 $
+b1 =
+1-
+0,
+b111 +
+b111 7
+b0 *
+b0 6
+b111 0
+b111 :
+b1 B
+1L
+0K
+b111 J
+b0 I
+b111 O
+b100011001010111010001000101111101000001010111110101011101000010 R
+#30000
+b10 #
+b10 >
+b0 $
+b0 =
+0-
+1,
+b0 +
+b0 7
+b1000 *
+b1000 6
+b1000 2
+b1000 <
+b1 0
+b1 :
+b10 C
+b0 B
+0L
+1K
+b0 J
+b1000 I
+b1000 Q
+b1 O
+b10001100101011101000100010111110100001001011111010011010100010101001101 R
+#40000
+b0 #
+b0 >
+b10 $
+b10 =
+1-
+b1001 +
+b1001 7
+b1001 *
+b1001 6
+b10 2
+b10 <
+b1001 0
+b1001 :
+b0 C
+b10 B
+1L
+b1001 J
+b1001 I
+b10 Q
+b1001 O
+b1000110010101110100010001011111010011010100010101001101010111110101000001010010010010010100111101010010010010010101010001011001 R
+#50000
+b0 $
+b0 =
+b0 +
+b0 7
+b0 *
+b0 6
+b0 0
+b0 :
+b0 B
+b0 J
+b0 I
+b0 O
+b1001001010001110100111001001111010100100100010101011111010110000011000001011111010001100101011101000100 R
+#60000
+1%
+1"
+1!
+1?
+b1 .
+b1 8
+b101 )
+b101 5
+b10 1
+b10 ;
+b101 /
+b101 9
+0-
+0,
+b0 2
+b0 <
+1A
+1D
+1E
+b1 M
+b101 H
+b10 P
+b101 N
+0L
+0K
+b0 Q
+b1000001010001000101111101010101010100110100010101011111010100110101010001000001010011000100110001011111010100100111001100110001 R
+#70000
+b110 )
+b110 5
+b110 1
+b110 ;
+b10 /
+b10 9
+b110 H
+b110 P
+b10 N
+b1000001010001000101111101010101010100110100010101011111010100110101010001000001010011000100110001011111010100100111001100110010 R
+#80000
+0%
+0"
+0!
+0?
+b0 .
+b0 8
+b101 )
+b101 5
+b10 1
+b10 ;
+b101 /
+b101 9
+0A
+0D
+0E
+b0 M
+b101 H
+b10 P
+b101 N
+b1011111010100110101010001000001010011000100110001011111010000010100110001010101010111110100110101000001010101000100001101001000 R
+#90000
+1%
+1&
+b1 (
+b1 4
+b0 )
+b0 5
+b0 1
+b0 ;
+b0 /
+b0 9
+1A
+1@
+b1 G
+b0 H
+b0 P
+b0 N
+b1000001010011100100001101001000010111110101010001000001010010110100010101001110010111110100011001001100010101010101001101001000 R
+#100000
+b0 (
+b0 4
+1'
+b0 G
+1F
+b1001101010010010101001101010000010100100100010101000100010010010100001101010100010111110100011001001100010101010101001101001000 R
+#110000
+1"
+1!
+1?
+b1 .
+b1 8
+b101 )
+b101 5
+b10 1
+b10 ;
+b101 /
+b101 9
+1D
+1E
+b1 M
+b101 H
+b10 P
+b101 N
+b1000101010001000100100101000011010101000101111101010111010010010101010001001000010111110101001101010100010000010100110001001100 R
+#120000

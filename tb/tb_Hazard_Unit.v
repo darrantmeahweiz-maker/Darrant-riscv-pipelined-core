@@ -10,6 +10,7 @@ module tb_Hazard_Unit();
     reg [4:0] rde;
     reg [1:0] resultsrce;
     reg [1:0] pcscrce;
+    reg       mispredict_flag; 
 
     // 2. Declare outputs as wires
     wire [1:0] forwardae, forwardbe;
@@ -27,6 +28,7 @@ module tb_Hazard_Unit();
         .RdW(rdw),
         .RegWriteM(regwritem),
         .RegWriteW(regwritew),
+        .Mispredict_Flag(mispredict_flag), // FIXED: Removed trailing comma and mapped to reg
         .Rs1D(rs1d),
         .Rs2D(rs2d),
         .RdE(rde),
@@ -47,6 +49,7 @@ module tb_Hazard_Unit();
         input [4:0] in_rs1e, in_rs2e;
         input [4:0] in_rdm, in_rdw;
         input       in_regwritem, in_regwritew;
+        input       in_mispredict;
         input [4:0] in_rs1d, in_rs2d;
         input [4:0] in_rde;
         input [1:0] in_resultsrce;
@@ -57,17 +60,18 @@ module tb_Hazard_Unit();
         input       exp_flushd, exp_flushe;
         begin
             // Apply inputs
-            rs1e       = in_rs1e;
-            rs2e       = in_rs2e;
-            rdm        = in_rdm;
-            rdw        = in_rdw;
-            regwritem  = in_regwritem;
-            regwritew  = in_regwritew;
-            rs1d       = in_rs1d;
-            rs2d       = in_rs2d;
-            rde        = in_rde;
-            resultsrce = in_resultsrce;
-            pcscrce    = in_pcscrce;
+            rs1e            = in_rs1e;
+            rs2e            = in_rs2e;
+            rdm             = in_rdm;
+            rdw             = in_rdw;
+            regwritem       = in_regwritem;
+            regwritew       = in_regwritew;
+            mispredict_flag = in_mispredict; // FIXED: Mapped to declared register
+            rs1d            = in_rs1d;
+            rs2d            = in_rs2d;
+            rde             = in_rde;
+            resultsrce      = in_resultsrce;
+            pcscrce         = in_pcscrce;
             
             #10; // Wait for combinational logic to settle
 
@@ -96,63 +100,81 @@ module tb_Hazard_Unit();
 
     // 5. Run the Test Sequence
     initial begin
+        $dumpfile("build/hazard_waveform.vcd");
+        $dumpvars(0,tb_Hazard_Unit);
         $display("========================================================================================================");
         $display("                        AUTOMATED HAZARD UNIT VERIFICATION SUITE                                ");
         $display("========================================================================================================");
 
         // --- SECTION 1: Default / No Hazards ---
-        // Description, Rs1E, Rs2E, RdM, RdW, RegW_M, RegW_W, Rs1D, Rs2D, RdE, ResSrcE, PCSrcE || Exp: FwdAE, FwdBE, StallF, StallD, FlushD, FlushE
+        // FIXED: Added 1'b0 for in_mispredict in all legacy tests to fix argument shifting
         test_hazard("NO_HAZARD", 
-                    5'd1, 5'd2, 5'd0, 5'd0, 1'b0, 1'b0, 5'd3, 5'd4, 5'd0, 2'b00, 2'b00, 
+                    5'd1, 5'd2, 5'd0, 5'd0, 1'b0, 1'b0, 1'b0, // <--- in_mispredict = 0
+                    5'd3, 5'd4, 5'd0, 2'b00, 2'b00, 
                     2'b00, 2'b00, 1'b0, 1'b0, 1'b0, 1'b0);
 
         // --- SECTION 2: Data Forwarding A & B Tests ---
-        // Forward from MEM stage for Input A (RdM matches Rs1E)
         test_hazard("FWD_A_MEM", 
-                    5'd5, 5'd2, 5'd5, 5'd0, 1'b1, 1'b0, 5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
+                    5'd5, 5'd2, 5'd5, 5'd0, 1'b1, 1'b0, 1'b0, 
+                    5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
                     2'b10, 2'b00, 1'b0, 1'b0, 1'b0, 1'b0);
 
-        // Forward from WB stage for Input A (RdW matches Rs1E)
         test_hazard("FWD_A_WB", 
-                    5'd7, 5'd2, 5'd0, 5'd7, 1'b0, 1'b1, 5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
+                    5'd7, 5'd2, 5'd0, 5'd7, 1'b0, 1'b1, 1'b0, 
+                    5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
                     2'b01, 2'b00, 1'b0, 1'b0, 1'b0, 1'b0);
 
-        // Forward from MEM stage for Input B (RdM matches Rs2E)
         test_hazard("FWD_B_MEM", 
-                    5'd1, 5'd8, 5'd8, 5'd0, 1'b1, 1'b0, 5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
+                    5'd1, 5'd8, 5'd8, 5'd0, 1'b1, 1'b0, 1'b0, 
+                    5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
                     2'b00, 2'b10, 1'b0, 1'b0, 1'b0, 1'b0);
 
-        // MEM Priority over WB test (Both RdM and RdW match Rs1E) -> MEM should win (2'b10)
         test_hazard("FWD_MEM_PRIORITY", 
-                    5'd9, 5'd2, 5'd9, 5'd9, 1'b1, 1'b1, 5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
+                    5'd9, 5'd2, 5'd9, 5'd9, 1'b1, 1'b1, 1'b0, 
+                    5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
                     2'b10, 2'b00, 1'b0, 1'b0, 1'b0, 1'b0);
 
-        // Zero Register check: RdM == 0 should NOT forward even if matching Rs1E
         test_hazard("IGNORE_X0_FWD", 
-                    5'd0, 5'd2, 5'd0, 5'd0, 1'b1, 1'b1, 5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
+                    5'd0, 5'd2, 5'd0, 5'd0, 1'b1, 1'b1, 1'b0, 
+                    5'd0, 5'd0, 5'd0, 2'b00, 2'b00, 
                     2'b00, 2'b00, 1'b0, 1'b0, 1'b0, 1'b0);
 
         // --- SECTION 3: Load-Use Stall Tests ---
-        // Load-Use Stall triggered when instruction in EX is Load (ResultSrcE[0]=1) and RdE matches Rs1D
         test_hazard("LOAD_USE_STALL_Rs1", 
-                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 5'd5, 5'd2, 5'd5, 2'b01, 2'b00, 
+                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 1'b0, 
+                    5'd5, 5'd2, 5'd5, 2'b01, 2'b00, 
                     2'b00, 2'b00, 1'b1, 1'b1, 1'b0, 1'b1);
 
-        // Load-Use Stall triggered when RdE matches Rs2D
         test_hazard("LOAD_USE_STALL_Rs2", 
-                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 5'd2, 5'd6, 5'd6, 2'b01, 2'b00, 
+                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 1'b0, 
+                    5'd2, 5'd6, 5'd6, 2'b01, 2'b00, 
                     2'b00, 2'b00, 1'b1, 1'b1, 1'b0, 1'b1);
 
-        // Non-Load instruction in EX (ResultSrcE = 2'b00) should NOT trigger load-use stall even if registers match
         test_hazard("NO_STALL_ALU_MATCH", 
-                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 5'd5, 5'd2, 5'd5, 2'b00, 2'b00, 
+                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 1'b0, 
+                    5'd5, 5'd2, 5'd5, 2'b00, 2'b00, 
                     2'b00, 2'b00, 1'b0, 1'b0, 1'b0, 1'b0);
 
         // --- SECTION 4: Control Hazard (Branch / Jump Taken) Tests ---
-        // Branch taken (PCSrcE = 2'b01) should flush Decode and Execute stages
         test_hazard("BRANCH_TAKEN_FLUSH", 
-                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 5'd0, 5'd0, 5'd0, 2'b00, 2'b01, 
+                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 1'b0, 
+                    5'd0, 5'd0, 5'd0, 2'b00, 2'b01, 
                     2'b00, 2'b00, 1'b0, 1'b0, 1'b1, 1'b1);
+
+        // --- SECTION 5: RAS Misprediction Tests (NEW) ---
+        // Test: Branch Monitor detects RAS misprediction. Expected: Flush both stages.
+        test_hazard("RAS_MISPREDICT_FLUSH", 
+                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 1'b1, // <--- in_mispredict = 1
+                    5'd0, 5'd0, 5'd0, 2'b00, 2'b00,           // Normal execution otherwise
+                    2'b00, 2'b00, 1'b0, 1'b0, 1'b1, 1'b1);    // EXPECT: FlushD = 1, FlushE = 1
+
+        // Test: Load-Use Stall happens simultaneously with a RAS misprediction.
+        // Expected: Control flush should override stalls (Stall=1, FlushD=1, FlushE=1).
+        test_hazard("RAS_MISPREDICT_WITH_STALL", 
+                    5'd0, 5'd0, 5'd0, 5'd0, 1'b0, 1'b0, 1'b1, // <--- in_mispredict = 1
+                    5'd5, 5'd2, 5'd5, 2'b01, 2'b00,           // Load-Use condition triggered
+                    2'b00, 2'b00, 1'b1, 1'b1, 1'b1, 1'b1);    // EXPECT: Stall and Flushes go high
+
 
         // --- Final Summary Report ---
         $display("========================================================================================================");

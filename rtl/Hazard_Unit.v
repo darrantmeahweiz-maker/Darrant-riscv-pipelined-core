@@ -4,6 +4,7 @@ module Hazard_Unit (
     input       [4:0]   Rs2E,
     input       [4:0]   RdM, RdW,
     input               RegWriteM, RegWriteW,
+    input               Mispredict_Flag,
 
     //Input for Load-Use Stalls (ID Stage)
     input       [4:0]   Rs1D,
@@ -61,14 +62,15 @@ module Hazard_Unit (
 
             //2) Flush ID: Clear instruction if Jump/Branch is taken
             // (PCSrcE = 01 for JAL/Branch, 10 for JALR)
-            if (PCSrcE != 2'b00) begin
+            // (Mispredict_Flag for failed RAS guesses)
+            if ((PCSrcE != 2'b00) ||(Mispredict_Flag == 1'b1)) begin
                 FlushD = 1'b1;
             end else begin
                 FlushD = 1'b0;
             end
 
-            //3) Flush EX: Insert a bubble if Load-Use stalled OR if Jump/Branch taken
-            if (lwStall || (PCSrcE != 2'b00)) begin
+            //3) Flush EX: Insert a bubble if Load-Use stalled OR if Jump/Branch taken OR Misprediction
+            if ((lwStall) || (PCSrcE != 2'b00) ||(Mispredict_Flag == 1'b1)) begin
                 FlushE = 1'b1;
             end else begin
                 FlushE = 1'b0;

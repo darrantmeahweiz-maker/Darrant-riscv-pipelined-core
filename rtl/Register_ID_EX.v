@@ -26,6 +26,8 @@ module Register_ID_EX (
     input       [2:0]   funct3D,      // Funct3 field
     input       [31:0]  ImmExtD,      // Extended Immediate
     input       [31:0]  PCPlus4D,     // PC + 4 in Decode
+    input       [31:0]  Predicted_PCD,
+    input               Pop_EnableD,
 
     // Control Signals Output (Execute Stage)
     output reg          RegWriteE,
@@ -50,7 +52,9 @@ module Register_ID_EX (
     output reg  [4:0]   RdE,
     output reg  [2:0]   funct3E,
     output reg  [31:0]  ImmExtE,
-    output reg  [31:0]  PCPlus4E
+    output reg  [31:0]  PCPlus4E,
+    output reg  [31:0]  Predicted_PCE,
+    output reg          Pop_EnableE
 );
 
     always @(posedge i_Clk) begin
@@ -77,6 +81,8 @@ module Register_ID_EX (
             funct3E      <= 3'b000;
             ImmExtE      <= 32'h0;
             PCPlus4E     <= 32'h0;
+            Predicted_PCE<= 32'h0;  
+            Pop_EnableE  <= 1'b0;    
         end else begin
             // NORMAL OPERATION: Pass everything forward to the Execute stage
             RegWriteE    <= RegWriteD;
@@ -100,6 +106,8 @@ module Register_ID_EX (
             funct3E      <= funct3D;
             ImmExtE      <= ImmExtD;
             PCPlus4E     <= PCPlus4D;
+            Predicted_PCE<= Predicted_PCD; 
+            Pop_EnableE  <= Pop_EnableD;   
         end
     end
 
