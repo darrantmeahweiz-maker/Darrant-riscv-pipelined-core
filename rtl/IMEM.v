@@ -1,4 +1,5 @@
 module IMEM (
+    input           clk,
     input wire [31:0] A,
     output reg [31:0] RD,
     input wire        OE        //permanently turned on (1'b1)
@@ -17,11 +18,11 @@ module IMEM (
     wire [9:0] word_index = A >>2;
 
     //Combinational Read Logic
-    always @(*) begin
+    always @(posedge clk) begin
         if (OE) begin
-            RD = ROM[word_index];
+            RD <= ROM[word_index];
         end else begin
-            RD = 32'h00000013; //NOP instruction (addi x0,x0,0)
+            RD <= 32'h00000013; //NOP instruction (addi x0,x0,0)
         end
     end
 endmodule

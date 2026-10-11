@@ -33,12 +33,13 @@ module DMEM (
         end
     end
 
-    // Combinational Read Logic
-    always @(*) begin
+    // original is Combinational Read Logic
+    // FPGA need the synchronous read
+    always @(posedge i_Clk) begin
         if (OE) begin
-            RD = RAM[word_index];
+            RD <= RAM[word_index];
         end else begin
-            RD = 32'h00000000;
+            RD <= 32'h00000000;
         end
     end
 endmodule
