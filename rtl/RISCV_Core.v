@@ -1,3 +1,4 @@
+// ==================== rtl/RISCV_Core.v ====================
 `timescale 1ns / 1ps
 
 module RISCV_Core (
@@ -15,7 +16,7 @@ module RISCV_Core (
     wire        Mispredict_Flag;
 
     // --- Fetch Stage (IF) ---
-    wire [31:0] PC_next, PCF, PCPlus4F, InstrF;
+    wire [31:0] PC_next_raw, PC_next, PCF, PCPlus4F, InstrF;
     wire [1:0]  MUX_PCSel;
     wire        Push_EnableF, Pop_EnableF;
     wire [31:0] Predicted_PCF;
@@ -58,13 +59,16 @@ module RISCV_Core (
     wire [2:0]  funct3M;
     wire        WE, OE;
     wire [3:0]  BW;
-    wire [31:0] ReadDataM_raw, ReadDataM_formatted;
+    wire [31:0] Formatted_WriteDataM;
+    wire [31:0] ReadDataM_raw; // M10K registered read output (valid in WB)
 
     // --- Writeback Stage (WB) ---
     wire        RegWriteW;
     wire [1:0]  ResultSrcW;
-    wire [31:0] ALUResultW, ReadDataW, PCPlus4W;
+    wire [31:0] ALUResultW, PCPlus4W;
     wire [4:0]  RdW;
+    wire [2:0]  funct3W;
+    wire [31:0] ReadDataW_formatted;
     wire [31:0] ResultW;
 
 
@@ -84,8 +88,11 @@ module RISCV_Core (
         .PCTargetE(PCTargetE),
         .ALUResultE(ALUResultE_Final),
         .Predicted_PC(Predicted_PCF),
-        .PC_next(PC_next)
+        .PC_next(PC_next_raw)
     );
+
+    // Force PC_next to 0 during reset to ensure instruction 0 is fetched immediately on boot
+    assign PC_next = reset ? 32'h00000000 : PC_next_raw;
 
     Register_PC pc_reg (
         .i_Clk(clk),
@@ -100,10 +107,12 @@ module RISCV_Core (
         .PCPlus4F(PCPlus4F)
     );
 
+    // Synchronous IMEM: clocked, gated by ~StallF, addressed by PC_next[11:2]
     IMEM instruction_memory (
-        .A(PCF),
-        .RD(InstrF),
-        .OE(1'b1)
+        .clk(clk),
+        .en(~StallF),
+        .A(PC_next[11:2]),
+        .RD(InstrF)
     );
 
     Pre_Decoder pre_decoder (
@@ -367,38 +376,31 @@ module RISCV_Core (
         .OE(OE)
     );
 
+    // Synchronous DMEM: writes on posedge clk; read data arrives valid in WB stage
     DMEM data_memory (
         .i_Clk(clk),
         .WE(WE),
-        .OE(OE),
         .BW(BW),
-        .A(ALUResultM),
-        .WD(WriteDataM),
+        .A(ALUResultM[11:2]),
+        .WD(Formatted_WriteDataM),
         .RD(ReadDataM_raw)
     );
 
-    LSU load_store_unit (
-        .funct3M(funct3M),
-        .ALUResultM(ALUResultM[1:0]),
-        .RD(ReadDataM_raw),
-        .BW(BW),
-        .Formatted_ReadDataM(ReadDataM_formatted)
-    );
-
+    // Register_MEM_WB passes controls and address to WB without double-registering read data
     Register_MEM_WB mem_wb_reg (
         .i_Clk(clk),
         .RegWriteM(RegWriteM),
         .ResultSrcM(ResultSrcM),
         .ALUResultM(ALUResultM),
-        .Formatted_RD(ReadDataM_formatted),
         .RdM(RdM),
+        .funct3M(funct3M),
         .PCPlus4M(PCPlus4M),
         // Outputs
         .RegWriteW(RegWriteW),
         .ResultSrcW(ResultSrcW),
         .ALUResultW(ALUResultW),
-        .ReadDataW(ReadDataW),
         .RdW(RdW),
+        .funct3W(funct3W),
         .PCPlus4W(PCPlus4W)
     );
 
@@ -406,12 +408,28 @@ module RISCV_Core (
     // 6. WRITEBACK STAGE (WB)
     // =========================================================================
 
+    // LSU handles Store generation in MEM and Load formatting in WB
+    LSU load_store_unit (
+        // Store path (MEM)
+        .funct3M(funct3M),
+        .ByteOffsetM(ALUResultM[1:0]),
+        .WriteDataM(WriteDataM),
+        .BW(BW),
+        .Formatted_WriteDataM(Formatted_WriteDataM),
+
+        // Load path (WB)
+        .funct3W(funct3W),
+        .ByteOffsetW(ALUResultW[1:0]),
+        .Raw_ReadDataW(ReadDataM_raw),
+        .Formatted_ReadDataW(ReadDataW_formatted)
+    );
+
     Mux_ResultSrcW mux_result_w (
         .ResultSrcW(ResultSrcW),
         .ALUResultW(ALUResultW),
-        .ReadDataW(ReadDataW),
+        .ReadDataW(ReadDataW_formatted),
         .PCPlus4W(PCPlus4W),
-        .ALUResultE(ResultW) // Mapped to the ResultW wire, despite the port name
+        .ALUResultE(ResultW) // Maps to ResultW wire
     );
 
     // =========================================================================

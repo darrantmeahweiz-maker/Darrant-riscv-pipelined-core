@@ -1,28 +1,28 @@
-module IMEM (
-    input           clk,
-    input wire [31:0] A,
-    output reg [31:0] RD,
-    input wire        OE        //permanently turned on (1'b1)
+module IMEM #(
+    parameter ADDR_WIDTH = 10,
+    parameter DATA_WIDTH = 32
+)(
+    input wire        clk,
+    input wire        en,       //connected to ~StallF
+    input wire [ADDR_WIDTH-1:0] A,        //connected to PC_next[11:2]
+    output reg [DATA_WIDTH-1:0] RD      
 );
 
-    reg [31:0] ROM [0:1023]; //4kb (1024 words x 32bits)
+    (* ramstyle = "M10K" *) reg [DATA_WIDTH-1:0] ROM [0:(2**ADDR_WIDTH)-1]; 
 
-    //$readmemh reads hexadecimal text file and load into ROM array
+        //$readmemh reads hexadecimal text file and load into ROM array
     initial begin
+        RD = 32'h00000013;
         $readmemh("program.hex",ROM);
     end
 
-    //Address Translation: PC, program counter counts by 4 (0x0, 0x4, 0x8...)
-    //Shifting right by 2 (divide by 4) converts byte-address into word_index
-    //Assuming IMEM starts at address 0x0000_0000.
-    wire [9:0] word_index = A >>2;
-
     //Combinational Read Logic
     always @(posedge clk) begin
-        if (OE) begin
-            RD <= ROM[word_index];
-        end else begin
-            RD <= 32'h00000013; //NOP instruction (addi x0,x0,0)
+        if (en) begin
+            RD <= ROM[A];
+        //end else begin
+            //RD <= 32'h00000013; //M10K can hold value or clear to zero
+                //but they cannot natively reset to 32-bit constant
         end
     end
 endmodule

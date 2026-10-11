@@ -1,45 +1,32 @@
-module DMEM (
+module DMEM #(
+    parameter ADDR_WIDTH = 10,
+    parameter DATA_WIDTH = 32
+)(
     input  wire        i_Clk,
-    input  wire        WE, // MemWriteM --> address_decoder  --> DMEM
-    input  wire        OE, // Output enable
-    input  wire [3:0]  BW, // Byte-enables funct3D --> EX/MEM --> funct3E --> MEM/WB --> funct3M --> LSU --> DMEM
-    input  wire [31:0] A,
-    input  wire [31:0] WD,
-    output reg  [31:0] RD
+    input  wire        WE,              //From address_decoder
+    input  wire [3:0]  BW,                  //Byte write-enables
+    input  wire [ADDR_WIDTH-1:0] A,       //word_index: ALUResultM[11:2]
+    input  wire [DATA_WIDTH-1:0] WD,      //Alugned store data
+    output reg  [DATA_WIDTH-1:0] RD       //Registered read data (valid in WB)
 );
 
-    reg [31:0] RAM [0:1023]; // 4KB (1024 words x 32 bits)
+    (* ramstyle = "M10K"  *) reg [DATA_WIDTH-1:0] RAM [0:(2**ADDR_WIDTH)-1]; 
 
     integer i;
     initial begin
-        for (i = 0; i < 1024; i = i + 1) begin
+        for (i = 0; i < (2**ADDR_WIDTH); i = i + 1) begin
             RAM[i] = 32'h00000000;
         end
     end
 
-    // 2**10 = 1024 --> [9:0]
-    // Map 0x1001_0000 --> index 0, and divide by 4 for word alignment
-    wire [9:0] word_index = (A - 32'h10010000) >> 2;
-
-    // Sequential Write Logic (Byte-Enable Masking)
+    //Sequential Write & Synchronous Read
     always @(posedge i_Clk) begin
         if (WE) begin
-            RAM[word_index] <= {
-                BW[3] ? WD[31:24] : RAM[word_index][31:24],
-                BW[2] ? WD[23:16] : RAM[word_index][23:16],
-                BW[1] ? WD[15:8]  : RAM[word_index][15:8],
-                BW[0] ? WD[7:0]   : RAM[word_index][7:0]
-            };
+            if (BW[0]) RAM[A][7:0] <= WD[7:0];
+            if (BW[1]) RAM[A][15:8] <= WD[15:8];
+            if (BW[2]) RAM[A][23:16] <= WD[23:16];
+            if (BW[3]) RAM[A][31:24] <= WD[31:24];
         end
-    end
-
-    // original is Combinational Read Logic
-    // FPGA need the synchronous read
-    always @(posedge i_Clk) begin
-        if (OE) begin
-            RD <= RAM[word_index];
-        end else begin
-            RD <= 32'h00000000;
-        end
+        RD <= RAM[A];
     end
 endmodule
